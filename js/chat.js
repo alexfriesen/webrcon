@@ -1,88 +1,86 @@
+app.controller('ChatController', ChatController);
 
-app.controller( 'ChatController', ChatController );
+function ChatController($scope, rconService, $timeout) {
+  $scope.Output = [];
 
-function ChatController( $scope, rconService, $timeout )
-{
-	$scope.Output = [];
+  $scope.SubmitCommand = function() {
+    if (!$scope.Command) {
+      return;
+    }
 
-	$scope.SubmitCommand = function ()
-	{
-		rconService.Command( "say " + $scope.Command, 1 );
-		$scope.Command = "";
-	}
+    rconService.Command("say " + $scope.Command, 1);
+    $scope.Command = "";
+  }
 
-	$scope.$on( "OnMessage", function ( event, msg )
-	{
-		if ( msg.Type !== "Chat" ) return;
+  $scope.$on("OnMessage", function(event, msg) {
+    if (msg.Type !== "Chat")
+      return;
 
-		$scope.OnMessage( JSON.parse( msg.Message ) );
-	});
+    $scope.OnMessage(JSON.parse(msg.Message));
+  });
 
-	$scope.OnMessage = function( msg )
-	{
-		msg.Message = stripHtml(msg.Message);
-		$scope.Output.push( msg );
-		
-		if($scope.isOnBottom()) {
-			$scope.ScrollToBottom();
-		}
-	}
+  $scope.OnMessage = function(msg) {
+    msg.Message = stripHtml(msg.Message);
+    $scope.Output.push(msg);
 
-	$scope.ScrollToBottom = function()
-	{
-		var element = $( "#ChatController .Output" );
+    if ($scope.isOnBottom()) {
+      $scope.ScrollToBottom();
+    }
+  }
 
-		$timeout( function() {
-			element.scrollTop( element.prop('scrollHeight') );
-		}, 50 );
-	}
+  $scope.ScrollToBottom = function() {
+    var element = $("#ChatController .Output");
 
-	$scope.isOnBottom = function()
-	{
-		// get jquery element
-		var element = $( "#ChatController .Output" );
+    $timeout(function() {
+      element.scrollTop(element.prop('scrollHeight'));
+    }, 50);
+  }
 
-		// height of the element
-		var height = element.height();
+  $scope.isOnBottom = function() {
+    // get jquery element
+    var element = $("#ChatController .Output");
 
-		// scroll position from top position
-		var scrollTop = element.scrollTop();
+    // height of the element
+    var height = element.height();
 
-		//  full height of the element
-		var scrollHeight = element.prop('scrollHeight');
+    // scroll position from top position
+    var scrollTop = element.scrollTop();
 
-		if((scrollTop + height) > (scrollHeight - 10)) {
-			return true;
-		}
+    //  full height of the element
+    var scrollHeight = element.prop('scrollHeight');
 
-		return false;
-	}
+    if ((scrollTop + height) > (scrollHeight - 10)) {
+      return true;
+    }
 
-	//
-	// Calls console.tail - which returns the last 256 entries from the console.
-	// This is then added to the console
-	//
-	$scope.GetHistory = function ()
-	{
-		rconService.Request( "chat.tail 512", $scope, function ( msg )
-		{
-			var messages = JSON.parse( msg.Message );
+    return false;
+  }
 
-			messages.forEach( function ( message ) {
-			 $scope.OnMessage( message ); 
-			});
+  //
+  // Calls console.tail - which returns the last 256 entries from the console.
+  // This is then added to the console
+  //
+  $scope.GetHistory = function() {
+    rconService.Request("chat.tail 512", $scope, function(msg) {
+      var messages = JSON.parse(msg.Message);
 
-			$scope.ScrollToBottom();
-		} );
-	}
+      messages.forEach(function(message) {
+        $scope.OnMessage(message);
+      });
 
-	rconService.InstallService( $scope, $scope.GetHistory )
+      $scope.ScrollToBottom();
+    });
+  }
+
+  rconService.InstallService($scope, $scope.GetHistory)
 }
 
-function stripHtml(html)
-{
-	if (html == null) return "";
-	var tmp = document.createElement("div");
-	tmp.innerHTML = html;
-	return tmp.textContent || tmp.innerText || "";
+function stripHtml(html) {
+  if (!html)
+    return "";
+
+  var tmp = document.createElement("div");
+  tmp.innerHTML = html;
+
+  return tmp.textContent || tmp.innerText || "";
 }
