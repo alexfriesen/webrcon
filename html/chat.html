@@ -3,10 +3,10 @@
   <div style="height: 600px" class="Output scrollable">
     <div ng-repeat="line in Output" ng-class="line.Class">
       <span class="chattime">{{(line.Time * 1000) | date:'shortTime'}}</span>
-      <span class="chatname" data-ng-if="line.UserId > 0">
+      <span class="chatname" ng-if="line.UserId > 0">
         <a href="#/{{address}}/player/{{line.UserId}}/">{{line.Username}}:</a>
       </span>
-      <span class="chatname" data-ng-else>
+      <span class="chatname" ng-if="line.UserId == 0">
         {{line.Username}}:
       </span>
       <span style="display:inline-block;">{{line.Message}}</span>
@@ -15,9 +15,9 @@
 
   <form ng-submit="SubmitCommand()" class="md-inline-form">
     <div class="input-group">
-      <input class="form-control" type="text" placeholder="Message" ng-model="Command">
+      <input type="text" class="form-control" placeholder="Message" ng-model="Command">
       <span class="input-group-btn">
-        <button class="btn btn-default" type="submit">Submit</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
       </span>
     </div>
   </form>
